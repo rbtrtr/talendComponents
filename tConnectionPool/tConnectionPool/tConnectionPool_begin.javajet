@@ -46,6 +46,8 @@
   String oraConnectionType = ElementParameterParser.getValue(node, "__ORA_CONNECTION_TYPE__");
   String localServiceName = ElementParameterParser.getValue(node, "__LOCAL_SERVICE_NAME__");
 
+  String creationComponent = ElementParameterParser.getValue(node, "__CONNECTION_POOL__");
+
 %> 
 
 java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> = new java.util.HashMap<String, routines.system.TalendDataSource>(); 
@@ -54,7 +56,9 @@ java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> =
   
   dataSourceMap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
 
-  routines.system.TalendDataSource dataSource_<%=cid%> = dataSourceMap_<%=cid%>.get(<%=alias%>);
+  String alias = (java.lang.String) globalMap.get("<%=creationComponent%>_alias");
+
+  routines.system.TalendDataSource dataSource_<%=cid%> = dataSourceMap_<%=cid%>.get(alias);
 
   dataSource_<%=cid%>.close();
 
@@ -124,5 +128,7 @@ java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> =
   dataSourceMap_<%=cid%>.put(<%=alias%>, connectionPool_<%=cid%>.getDataSource());
 
   globalMap.put("KEY_DB_DATASOURCES", dataSourceMap_<%=cid%>);
+
+  globalMap.put("<%=cid%>_alias",<%=alias%>);
 
 <% } %>
