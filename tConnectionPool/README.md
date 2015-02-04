@@ -14,7 +14,7 @@
 ## Basic Settings
 | Item | Description |
 |------|---------------|
-|Database Version|- MySQL,Oracle <br> - Supported Oracle Version: 11-6,11,10 <br>- Oracle Connection Types: SID, ServiceName|
+|Database Version|- MySQL,Oracle <br> -Supported Version: 11-6,11,10 <br> -	Connection Types: SID, ServiceName|
 |Host|“127.0.0.1”|
 |Port|“3306”|
 |Database|“myDatabase”|
