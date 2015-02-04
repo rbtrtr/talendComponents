@@ -1,0 +1,128 @@
+<%@ jet imports="
+    org.talend.core.model.process.INode 
+    org.talend.core.model.process.ElementParameterParser 
+    org.talend.core.model.metadata.IMetadataTable 
+    org.talend.core.model.metadata.IMetadataColumn 
+    org.talend.core.model.process.IConnection
+    org.talend.core.model.process.IConnectionCategory
+    org.talend.designer.codegen.config.CodeGeneratorArgument
+    org.talend.core.model.metadata.types.JavaTypesManager
+    org.talend.core.model.metadata.types.JavaType
+  " 
+%>
+
+<%
+
+  CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+  INode node = (INode)codeGenArgument.getArgument();
+  String cid = node.getUniqueName();
+
+  String mode = ElementParameterParser.getValue(node, "__MODE__");
+  String db_version = ElementParameterParser.getValue(node, "__DATABASE_VERSION__");
+  String host = ElementParameterParser.getValue(node, "__HOST__");
+  String port = ElementParameterParser.getValue(node, "__PORT__");
+  String database = ElementParameterParser.getValue(node, "__DATABASE__");
+  String schema = ElementParameterParser.getValue(node, "__SCHEMA__");
+  String user = ElementParameterParser.getValue(node, "__USER__");
+  String password = ElementParameterParser.getValue(node, "__PASS__");
+  String alias = ElementParameterParser.getValue(node, "__ALIAS__");
+
+  String test_on_borrow = ElementParameterParser.getValue(node, "__TEST_ON_BORROW__");
+  String time_between_checks = ElementParameterParser.getValue(node, "__TIME_BETWEEN_CHECKS__");
+  String time_idle_connection_is_checked = ElementParameterParser.getValue(node, "__TIME_IDLE_CONNECTION_IS_CHECKED__");
+  String num_connections_checked = ElementParameterParser.getValue(node, "__NUM_CONNECTIONS_CHECKED__");
+
+  String additional_param = ElementParameterParser.getValue(node, "__ADDITIONAL_PARAM__");
+  String set_initial_size = ElementParameterParser.getValue(node, "__SET_INITIAL_SIZE__");
+  String initial_size = ElementParameterParser.getValue(node, "__INITIAL_SIZE__");
+  String set_max_total = ElementParameterParser.getValue(node, "__SET_MAX_TOTAL__");
+  String max_total = ElementParameterParser.getValue(node, "__MAX_TOTAL__");
+  String set_max_wait_for_connection = ElementParameterParser.getValue(node, "__SET_MAX_WAIT_FOR_CONNECTION__");
+  String max_wait_for_connection = ElementParameterParser.getValue(node, "__MAX_WAIT_FOR_CONNECTION__");
+
+  String set_init_sql = ElementParameterParser.getValue(node, "__SET_INIT_SQL__");
+  String init_sql = ElementParameterParser.getValue(node, "__INIT_SQL__");
+
+  String oraConnectionType = ElementParameterParser.getValue(node, "__ORA_CONNECTION_TYPE__");
+  String localServiceName = ElementParameterParser.getValue(node, "__LOCAL_SERVICE_NAME__");
+
+%> 
+
+java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> = new java.util.HashMap<String, routines.system.TalendDataSource>(); 
+
+<% if (mode.equals("CLOSE_POOL")){ %>
+  
+  dataSourceMap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
+
+  routines.system.TalendDataSource dataSource_<%=cid%> = dataSourceMap_<%=cid%>.get(<%=alias%>);
+
+  dataSource_<%=cid%>.close();
+
+<% } else if (mode.equals("CREATE_POOL")){ %>
+
+  String connectionString_<%=cid%> = null;
+
+
+  <% if (db_version.equals("MYSQL")){ %>
+
+    connectionString_<%=cid%> = "jdbc:mysql://"+<%=host%>+":"+<%=port%>+"/"+<%=database%>; 
+
+    de.rrichter.talendcomp.connectionpool.BasicConnectionPool connectionPool_<%=cid%> = new de.rrichter.talendcomp.connectionpool.BasicConnectionPool(<%=host%>,<%=port%>,<%=database%>,<%=user%>,<%=password%>, "MySQL");
+
+    connectionPool_<%=cid%>.setNumConnectionsPerCheck(<%=num_connections_checked%>);
+
+    connectionPool_<%=cid%>.loadDriver("com.mysql.jdbc.Driver");
+    
+  <% } else if (db_version.equals("ORACLE")){ %>
+
+    <% if(("ORACLE_SID").equals(oraConnectionType)) { %>
+            
+        connectionString_<%=cid%> = "jdbc:oracle:thin:@" + <%=host%> + ":" + <%=port%> + ":" + <%=database%>;
+    
+    <% } else if(("ORACLE_SERVICE_NAME").equals(oraConnectionType)) { %>
+
+            connectionString_<%=cid%> = "jdbc:oracle:thin:@(description=(address=(protocol=tcp)(host=" + <%=host%> + ")(port=" + <%=port%> + "))(connect_data=(service_name=" + <%=database%> + ")))";
+    
+    <% } else if(("ORACLE_OCI").equals(oraConnectionType)) {  %>
+            
+            connectionString_<%=cid%> = "jdbc:oracle:oci8:@" + <%=localServiceName%>;
+   
+    <% } %>
+
+    de.rrichter.talendcomp.connectionpool.BasicConnectionPool connectionPool_<%=cid%> = new de.rrichter.talendcomp.connectionpool.BasicConnectionPool(<%=host%>,<%=port%>,<%=database%>,<%=user%>,<%=password%>, "Oracle");    
+
+    connectionPool_<%=cid%>.setPoolName("ora_pool");
+    connectionPool_<%=cid%>.loadDriver("oracle.jdbc.pool.OracleDataSource");
+  <% } %>
+
+  connectionPool_<%=cid%>.setConnectionString(connectionString_<%=cid%>);
+  connectionPool_<%=cid%>.setTestOnBorrow(<%=test_on_borrow%>);
+  connectionPool_<%=cid%>.setAdditionalProperties(<%=additional_param%>);
+  connectionPool_<%=cid%>.setTimeIdleConnectionIsChecked(<%=time_idle_connection_is_checked%>);
+  connectionPool_<%=cid%>.setTimeBetweenChecks(<%=time_between_checks%>);
+
+
+
+  <% if (set_initial_size.equals("true")){ %>
+    connectionPool_<%=cid%>.setInitialSize(<%=initial_size%>);
+  <% } %>
+
+  <% if (set_max_total.equals("true")){ %>
+    connectionPool_<%=cid%>.setMaxTotal(<%=max_total%>);
+  <% } %>
+
+  <% if (set_max_wait_for_connection.equals("true")){ %>
+    connectionPool_<%=cid%>.setMaxWaitForConnection(<%=max_wait_for_connection%>);
+  <% } %>
+
+  <% if (set_init_sql.equals("true")){ %>
+    connectionPool_<%=cid%>.setInitSQL(<%=init_sql%>);
+  <% } %>
+
+  connectionPool_<%=cid%>.setupDataSource();
+
+  dataSourceMap_<%=cid%>.put(<%=alias%>, connectionPool_<%=cid%>.getDataSource());
+
+  globalMap.put("KEY_DB_DATASOURCES", dataSourceMap_<%=cid%>);
+
+<% } %>
