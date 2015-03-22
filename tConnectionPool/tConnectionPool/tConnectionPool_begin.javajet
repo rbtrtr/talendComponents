@@ -56,11 +56,9 @@ java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> =
   
   dataSourceMap_<%=cid%> = (java.util.Map<String, routines.system.TalendDataSource>) globalMap.get(KEY_DB_DATASOURCES);
 
-  String alias = (java.lang.String) globalMap.get("<%=creationComponent%>_alias");
+  de.rrichter.talendcomp.connectionpool.BasicConnectionPool createdPool = (de.rrichter.talendcomp.connectionpool.BasicConnectionPool) globalMap.get("<%=creationComponent%>_pool");
 
-  routines.system.TalendDataSource dataSource_<%=cid%> = dataSourceMap_<%=cid%>.get(alias);
-
-  dataSource_<%=cid%>.close();
+  createdPool.close();
 
 <% } else if (mode.equals("CREATE_POOL")){ %>
 
@@ -129,6 +127,6 @@ java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> =
 
   globalMap.put("KEY_DB_DATASOURCES", dataSourceMap_<%=cid%>);
 
-  globalMap.put("<%=cid%>_alias",<%=alias%>);
+  globalMap.put("<%=cid%>_pool",connectionPool_<%=cid%>);
 
 <% } %>
