@@ -47,7 +47,7 @@
   String localServiceName = ElementParameterParser.getValue(node, "__LOCAL_SERVICE_NAME__");
 
   String creationComponent = ElementParameterParser.getValue(node, "__CONNECTION_POOL__");
-
+  String url = ElementParameterParser.getValue(node, "__URL__");
 %> 
 
 java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> = new java.util.HashMap<String, routines.system.TalendDataSource>(); 
@@ -88,6 +88,10 @@ java.util.Map<String, routines.system.TalendDataSource> dataSourceMap_<%=cid%> =
     <% } else if(("ORACLE_OCI").equals(oraConnectionType)) {  %>
             
             connectionString_<%=cid%> = "jdbc:oracle:oci8:@" + <%=localServiceName%>;
+
+    <% } else if(("ORACLE_CUSTOM").equals(oraConnectionType)) {  %>
+            
+            connectionString_<%=cid%> = "" + <%=url%> + "";            
    
     <% } %>
 
